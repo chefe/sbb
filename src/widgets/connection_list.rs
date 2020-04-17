@@ -2,8 +2,8 @@ extern crate gtk;
 
 use gtk::prelude::*;
 
-use super::super::api::Connection;
-use super::ConnectionWidget;
+use crate::api::Connection;
+use crate::widgets::ConnectionWidget;
 
 pub struct ConnectionListWidget {
     pub container: gtk::ScrolledWindow,
@@ -12,13 +12,11 @@ pub struct ConnectionListWidget {
 
 impl ConnectionListWidget {
     pub fn new() -> Self {
-        let main_box = gtk::Box::new(gtk::Orientation::Vertical, 0);
-
-        let hadjust: Option<&gtk::Adjustment> = None;
-        let vadjust: Option<&gtk::Adjustment> = None;
-        let container = gtk::ScrolledWindow::new(hadjust, vadjust);
+        let container = Self::create_scrolled_window();
         container.set_vexpand(true);
         container.set_hexpand(true);
+
+        let main_box = gtk::Box::new(gtk::Orientation::Vertical, 0);
         container.add(&main_box);
 
         Self {
@@ -42,5 +40,11 @@ impl ConnectionListWidget {
         self.main_box.foreach(|child| {
             self.main_box.remove(child);
         });
+    }
+
+    fn create_scrolled_window() -> gtk::ScrolledWindow {
+        let hadjust: Option<&gtk::Adjustment> = None;
+        let vadjust: Option<&gtk::Adjustment> = None;
+        gtk::ScrolledWindow::new(hadjust, vadjust)
     }
 }

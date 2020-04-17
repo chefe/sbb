@@ -4,8 +4,8 @@ use gtk::prelude::*;
 
 use std::sync::Arc;
 
-use super::super::favorites::Favorites;
-use super::super::string_event_handler::StringEventHandler;
+use crate::favorites::Favorites;
+use crate::string_event_handler::StringEventHandler;
 
 #[derive(Clone)]
 pub struct LocationEntryWidget {
@@ -69,34 +69,35 @@ impl LocationEntryWidget {
             remove_favorite: StringEventHandler::new("remove-favorite"),
         };
 
-        {
-            let parent = widget.clone();
-            widget.entry.connect_changed(move |_| {
-                parent.update_favorite_button_icon();
-            });
-
-            let parent = widget.clone();
-            widget.clear_button.connect_clicked(move |_| {
-                parent.set_text("");
-            });
-
-            let parent = widget.clone();
-            widget.favorite_button.connect_clicked(move |_| {
-                match parent.is_current_text_in_favorites() {
-                    true => parent.remove_favorite.trigger(&parent.get_text()),
-                    false => parent.add_favorite.trigger(&parent.get_text()),
-                }
-            });
-
-            let parent = widget.clone();
-            widget.favorites.connect_changed(move || {
-                parent.update_favorite_button_icon();
-            });
-        }
-
+        widget.setup_event_handlers();
         widget.update_favorite_button_icon();
 
         widget
+    }
+
+    fn setup_event_handlers(&self) {
+        let widget = self.clone();
+        self.entry.connect_changed(move |_| {
+            widget.update_favorite_button_icon();
+        });
+
+        let widget = self.clone();
+        self.clear_button.connect_clicked(move |_| {
+            widget.set_text("");
+        });
+
+        let widget = self.clone();
+        self.favorite_button.connect_clicked(move |_| {
+            match widget.is_current_text_in_favorites() {
+                true => widget.remove_favorite.trigger(&widget.get_text()),
+                false => widget.add_favorite.trigger(&widget.get_text()),
+            }
+        });
+
+        let widget = self.clone();
+        self.favorites.connect_changed(move || {
+            widget.update_favorite_button_icon();
+        });
     }
 
     pub fn get_text(&self) -> String {

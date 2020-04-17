@@ -2,9 +2,9 @@ extern crate chrono;
 extern crate gtk;
 
 use chrono::DateTime;
-
-use super::super::api::Section;
 use gtk::prelude::*;
+
+use crate::api::Section;
 
 pub struct SectionWidget {
     pub container: gtk::Grid,

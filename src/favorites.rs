@@ -1,10 +1,10 @@
 extern crate gio;
 extern crate glib;
 
+use gio::prelude::*;
+
 use std::fs;
 use std::path;
-
-use gio::prelude::*;
 
 pub struct Favorites {
     favorites_file: Option<path::PathBuf>,

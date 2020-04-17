@@ -2,8 +2,8 @@ extern crate gtk;
 
 use gtk::prelude::*;
 
-use super::super::api::Connection;
-use super::SectionWidget;
+use crate::api::Connection;
+use crate::widgets::SectionWidget;
 
 pub struct ConnectionWidget {
     pub container: gtk::Box,

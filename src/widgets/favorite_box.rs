@@ -4,8 +4,8 @@ use gtk::prelude::*;
 
 use std::sync::Arc;
 
-use super::super::favorites::Favorites;
-use super::super::string_event_handler::StringEventHandler;
+use crate::favorites::Favorites;
+use crate::string_event_handler::StringEventHandler;
 
 #[derive(Clone)]
 pub struct FavoriteBoxWidget {
@@ -20,22 +20,25 @@ impl FavoriteBoxWidget {
         container.set_selection_mode(gtk::SelectionMode::None);
         container.set_hexpand(true);
 
+        let favorite_selected = StringEventHandler::new("favorite-selected");
+
         let widget = Self {
             container,
             favorites,
-            favorite_selected: StringEventHandler::new("favorite-selected"),
+            favorite_selected,
         };
 
-        {
-            let parent = widget.clone();
-            widget.favorites.connect_changed(move || {
-                parent.update_favorites();
-            });
-        }
-
+        widget.setup_event_handlers();
         widget.update_favorites();
 
         widget
+    }
+
+    fn setup_event_handlers(&self) {
+        let widget = self.clone();
+        self.favorites.connect_changed(move || {
+            widget.update_favorites();
+        });
     }
 
     fn update_favorites(&self) {
