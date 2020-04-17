@@ -1,0 +1,13 @@
+[package]
+name = "sbb"
+version = "0.1.0"
+authors = ["chefe <hi@chefe.io>"]
+edition = "2018"
+
+[dependencies]
+reqwest = { version = "0.10", features = ["blocking", "json"] }
+serde = { version = "1.0", features = ["derive"] }
+gtk = { version = "0.8.1", features = ["v3_24"] }
+gio = { version = "0.8.1", features = ["v2_60"] }
+glib = { version = "0.8.1" }
+chrono = { version = "0.4", features = ["serde"] }
