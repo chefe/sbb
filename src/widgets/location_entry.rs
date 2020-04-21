@@ -98,6 +98,16 @@ impl LocationEntryWidget {
         self.favorites.connect_changed(move || {
             widget.update_favorite_button_icon();
         });
+
+        let widget = self.clone();
+        self.connect_add_favorite(move |favorite| {
+            widget.favorites.add(favorite);
+        });
+
+        let widget = self.clone();
+        self.connect_remove_favorite(move |favorite| {
+            widget.favorites.remove(favorite);
+        });
     }
 
     pub fn get_text(&self) -> String {

@@ -28,12 +28,13 @@ fn build_ui(app: &gtk::Application) {
     let label_size_group = gtk::SizeGroup::new(gtk::SizeGroupMode::Horizontal);
     let favorites = Arc::new(Favorites::new());
 
-    let from_entry = create_location_entry("From", &label_size_group, favorites.clone());
-    let to_entry = create_location_entry("To", &label_size_group, favorites.clone());
+    let from_entry = LocationEntryWidget::new("From", &label_size_group, favorites.clone());
+    let to_entry = LocationEntryWidget::new("To", &label_size_group, favorites.clone());
     let button = gtk::Button::new_with_label("Submit");
 
     let conbox = ConnectionListWidget::new();
     let fav_box = FavoriteBoxWidget::new(favorites.clone());
+    let via_box = ViaBoxWidget::new(&label_size_group, favorites.clone());
 
     {
         let from_entry = from_entry.clone();
@@ -51,6 +52,7 @@ fn build_ui(app: &gtk::Application) {
     vbox.add(&fav_box.container);
     vbox.add(&from_entry.container);
     vbox.add(&to_entry.container);
+    vbox.add(&via_box.container);
     vbox.add(&button);
     vbox.add(&conbox.container);
 
@@ -64,30 +66,6 @@ fn build_ui(app: &gtk::Application) {
 
     window.add(&vbox);
     window.show_all();
-}
-
-fn create_location_entry(
-    caption: &str,
-    label_size_group: &gtk::SizeGroup,
-    favorites: Arc<Favorites>,
-) -> LocationEntryWidget {
-    let entry = LocationEntryWidget::new(caption, &label_size_group, favorites.clone());
-
-    {
-        let favorites = favorites.clone();
-        entry.connect_add_favorite(move |favorite| {
-            favorites.add(favorite);
-        });
-    }
-
-    {
-        let favorites = favorites.clone();
-        entry.connect_remove_favorite(move |favorite| {
-            favorites.remove(favorite);
-        });
-    }
-
-    entry
 }
 
 fn create_application_window(app: &gtk::Application) -> gtk::ApplicationWindow {
