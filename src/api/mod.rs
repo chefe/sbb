@@ -34,11 +34,22 @@ pub fn search_location(query: &str) -> Result<Vec<String>, reqwest::Error> {
     Ok(locations)
 }
 
-pub fn search_connection(from: &str, to: &str) -> Result<Vec<Connection>, reqwest::Error> {
+pub fn search_connection(
+    from: &str,
+    to: &str,
+    vias: Vec<String>,
+) -> Result<Vec<Connection>, reqwest::Error> {
+    let vias = vias
+        .iter()
+        .map(|via| format!("&via[]={}", via))
+        .collect::<Vec<String>>()
+        .join("");
+
     let url = format!(
-        "http://transport.opendata.ch/v1/connections?from={from}&to={to}",
+        "http://transport.opendata.ch/v1/connections?from={from}&to={to}{vias}",
         from = from,
         to = to,
+        vias = vias,
     );
 
     let response = reqwest::blocking::get(&url)?.json::<ConnectionsResponse>()?;
@@ -70,7 +81,7 @@ mod tests {
 
     #[test]
     fn it_returns_a_non_empty_list_for_a_valid_connection() {
-        let connections = search_connection("Zug", "Chur").unwrap();
+        let connections = search_connection("Zug", "Chur", vec![]).unwrap();
         assert!(connections.len() > 0);
     }
 }

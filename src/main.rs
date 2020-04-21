@@ -59,8 +59,9 @@ fn build_ui(app: &gtk::Application) {
     button.connect_clicked(move |_| {
         let from = from_entry.get_text();
         let to = to_entry.get_text();
+        let vias = via_box.get_vias();
 
-        let connections = sbb::api::search_connection(&from, &to).unwrap();
+        let connections = sbb::api::search_connection(&from, &to, vias).unwrap();
         conbox.set_connections(connections);
     });
 
