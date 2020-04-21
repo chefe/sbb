@@ -40,8 +40,7 @@ impl ViaBoxWidget {
         let parent = self.clone();
         let vias = self.vias.clone();
         self.add_button.connect_clicked(move |_| {
-            let entry =
-                LocationEntryWidget::new("Via", &parent.label_size_group, parent.favorites.clone());
+            let entry = parent.create_entry();
 
             // Release lock before reload is called
             {
@@ -51,6 +50,25 @@ impl ViaBoxWidget {
 
             parent.reload();
         });
+    }
+
+    fn create_entry(&self) -> LocationEntryWidget {
+        let entry = LocationEntryWidget::new("Via", &self.label_size_group, self.favorites.clone());
+
+        let vias = self.vias.clone();
+        let widget = entry.clone();
+        let parent = self.clone();
+        entry.connect_cleared(move || {
+            // Release lock before reload is called
+            {
+                let mut vias = vias.lock().unwrap();
+                vias.retain(|f| f.container != widget.container);
+            }
+
+            parent.reload();
+        });
+
+        entry
     }
 
     fn reload(&self) {
@@ -70,6 +88,7 @@ impl ViaBoxWidget {
     pub fn get_vias(&self) -> Vec<String> {
         let vias = self.vias.clone();
         let vias = vias.lock().unwrap();
+
         vias.iter()
             .map(|entry| entry.get_text())
             .filter(|via| via.is_empty() == false)

@@ -1,5 +1,7 @@
+extern crate gio;
 extern crate gtk;
 
+use gio::prelude::*;
 use gtk::prelude::*;
 
 use std::sync::Arc;
@@ -16,6 +18,7 @@ pub struct LocationEntryWidget {
     favorites: Arc<Favorites>,
     add_favorite: StringEventHandler,
     remove_favorite: StringEventHandler,
+    cleared: gio::SimpleAction,
 }
 
 impl LocationEntryWidget {
@@ -67,6 +70,7 @@ impl LocationEntryWidget {
             favorites,
             add_favorite: StringEventHandler::new("add-favorite"),
             remove_favorite: StringEventHandler::new("remove-favorite"),
+            cleared: gio::SimpleAction::new("cleared", None),
         };
 
         widget.setup_event_handlers();
@@ -84,6 +88,7 @@ impl LocationEntryWidget {
         let widget = self.clone();
         self.clear_button.connect_clicked(move |_| {
             widget.set_text("");
+            widget.cleared.activate(None);
         });
 
         let widget = self.clone();
@@ -156,5 +161,14 @@ impl LocationEntryWidget {
         F: Fn(&str) + 'static,
     {
         self.remove_favorite.connect(callback);
+    }
+
+    pub fn connect_cleared<F>(&self, callback: F)
+    where
+        F: Fn() + 'static,
+    {
+        self.cleared.connect_activate(move |_, _| {
+            callback();
+        });
     }
 }
