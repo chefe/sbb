@@ -6,6 +6,7 @@ use gtk::prelude::*;
 
 use std::sync::Arc;
 
+use crate::api;
 use crate::favorites::Favorites;
 use crate::string_event_handler::StringEventHandler;
 
@@ -19,6 +20,7 @@ pub struct LocationEntryWidget {
     add_favorite: StringEventHandler,
     remove_favorite: StringEventHandler,
     cleared: gio::SimpleAction,
+    completion: gtk::EntryCompletion,
 }
 
 impl LocationEntryWidget {
@@ -34,12 +36,18 @@ impl LocationEntryWidget {
         label.set_margin_start(5);
         label.set_margin_end(0);
 
+        let completion = gtk::EntryCompletion::new();
+        completion.set_text_column(0);
+        completion.set_minimum_key_length(2);
+        completion.set_popup_completion(true);
+
         let entry = gtk::Entry::new();
         entry.set_margin_top(5);
         entry.set_margin_bottom(5);
         entry.set_margin_start(5);
         entry.set_margin_end(5);
         entry.set_hexpand(true);
+        entry.set_completion(Some(&completion));
 
         let favorite_button = gtk::Button::new();
         favorite_button.set_margin_top(5);
@@ -68,6 +76,7 @@ impl LocationEntryWidget {
             favorite_button,
             clear_button,
             favorites,
+            completion,
             add_favorite: StringEventHandler::new("add-favorite"),
             remove_favorite: StringEventHandler::new("remove-favorite"),
             cleared: gio::SimpleAction::new("cleared", None),
@@ -83,6 +92,7 @@ impl LocationEntryWidget {
         let widget = self.clone();
         self.entry.connect_changed(move |_| {
             widget.update_favorite_button_icon();
+            widget.update_completion_list();
         });
 
         let widget = self.clone();
@@ -147,6 +157,20 @@ impl LocationEntryWidget {
     fn set_button_icon(button: &gtk::Button, name: &str) {
         let icon = gtk::Image::new_from_icon_name(Some(name), gtk::IconSize::Menu);
         button.set_image(Some(&icon));
+    }
+
+    fn update_completion_list(&self) {
+        let store = gtk::ListStore::new(&[String::static_type()]);
+        let col_indices: [u32; 1] = [0];
+
+        if let Ok(locations) = api::search_location(&self.get_text()) {
+            for location in locations.iter() {
+                let values: [&dyn ToValue; 1] = [&location];
+                store.set(&store.append(), &col_indices, &values);
+            }
+        }
+
+        self.completion.set_model(Some(&store));
     }
 
     pub fn connect_add_favorite<F>(&self, callback: F)
