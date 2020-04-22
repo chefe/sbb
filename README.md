@@ -1,5 +1,5 @@
 # sbb
-A simple rust app to get timetable information for swiss public transport.
+A simple gtk app to get timetable information for swiss public transport.
 
 ## Installation via Make
 1. Verify `make` and `cargo` are installed
