@@ -74,6 +74,10 @@ impl Favorites {
     }
 
     pub fn add(&self, favorite: &str) {
+        if favorite.len() == 0 {
+            return;
+        }
+
         let mut favorites = self.get();
         favorites.push(favorite.to_owned());
         self.store(favorites);
