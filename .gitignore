@@ -1,2 +1,9 @@
+# Ignore cargo build folder
 /target
-Cargo.lock
+
+# Ignore flatpak files
+/.flatpak-build-*
+/.flatpak-builder
+/.flatpak-repo
+/io.chefe.sbb.*.flatpak
+

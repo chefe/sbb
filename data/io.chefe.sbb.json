@@ -1,0 +1,42 @@
+{
+    "app-id" : "io.chefe.sbb",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "3.34",
+    "sdk": "org.gnome.Sdk",
+    "sdk-extensions" : [
+        "org.freedesktop.Sdk.Extension.rust-stable"
+    ],
+    "command" : "io.chefe.sbb",
+    "finish-args" : [
+        "--socket=x11",
+        "--socket=wayland",
+        "--device=dri",
+        "--share=ipc",
+        "--share=network"
+    ],
+    "build-options" : {
+        "append-path" : "/usr/lib/sdk/rust-stable/bin",
+        "build-args" : [
+            "--share=network"
+        ],
+        "env" : {
+            "CARGO_HOME" : "/run/build/sbb/cargo",
+            "RUSTFLAGS" : "--remap-path-prefix =../"
+        }
+    },
+    "modules" : [
+        {
+            "name" : "sbb",
+            "buildsystem" : "simple",
+            "build-commands": [
+                "make install PREFIX=/app"
+            ],
+            "sources" : [
+                {
+                    "type" : "dir",
+                    "path" : ".."
+                }
+            ]
+        }
+    ]
+}

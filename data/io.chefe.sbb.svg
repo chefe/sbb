@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   id="svg24"
+   width="128"
+   height="128"
+   version="1.0">
+  <metadata
+     id="metadata28">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs16">
+    <linearGradient
+       id="e">
+      <stop
+         id="stop2"
+         stop-color="#ec0000ff"
+         offset="0" />
+      <stop
+         id="stop4"
+         stop-color="#ec0000ff"
+         offset=".038" />
+      <stop
+         id="stop6"
+         stop-color="#ce0000ff"
+         offset=".077" />
+      <stop
+         id="stop8"
+         stop-color="#ce0000ff"
+         offset=".923" />
+      <stop
+         id="stop10"
+         stop-color="#ec0000ff"
+         offset=".962" />
+      <stop
+         id="stop12"
+         stop-color="#ce0000ff"
+         offset="1" />
+    </linearGradient>
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="252"
+       x2="265"
+       y1="252"
+       x1="161"
+       id="f"
+       xlink:href="#e"
+       gradientTransform="translate(0,-24.697674)" />
+  </defs>
+  <g
+     id="g22"
+     transform="matrix(1.2064646,0,0,0.81901651,-192.99649,-114.68682)">
+    <rect
+       id="rect18"
+       style="fill:url(#f);marker:none"
+       width="104"
+       height="84"
+       x="161"
+       y="185.30232"
+       rx="8"
+       ry="8" />
+    <rect
+       id="rect20"
+       ry="8"
+       rx="8"
+       y="165.30232"
+       x="161"
+       height="96"
+       width="104"
+       style="fill:#ec0000;marker:none" />
+  </g>
+  <path
+     style="fill:#ffffff;stroke-width:4.51592827"
+     id="path6"
+     d="M 37.171262,93.327707 H 52.83628 L 31.753229,68.122148 H 57.924291 V 93.327707 H 70.289212 V 68.122148 H 96.468617 L 75.373039,93.327707 H 91.046426 L 117.89419,60.579526 91.050604,27.723949 H 75.377216 L 96.472791,53.036904 H 70.29758 V 27.728832 H 57.932637 V 53.036904 H 31.753229 L 52.83628,27.728832 H 37.171262 L 10.310951,60.58441 37.171262,93.327707" />
+</svg>

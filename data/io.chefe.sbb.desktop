@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=SBB
+Icon=io.chefe.sbb
+Exec=io.chefe.sbb
+Terminal=false
+Type=Application
+Categories=Utility;GTK
+StartupNotify=false
