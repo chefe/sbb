@@ -5,6 +5,7 @@ use gio::prelude::*;
 use gtk::prelude::*;
 
 use std::sync::Arc;
+use std::thread;
 
 use crate::api;
 use crate::favorites::Favorites;
@@ -17,10 +18,15 @@ pub struct LocationEntryWidget {
     favorite_button: gtk::Button,
     clear_button: gtk::Button,
     favorites: Arc<Favorites>,
+    sender: glib::Sender<Message>,
     add_favorite: StringEventHandler,
     remove_favorite: StringEventHandler,
     cleared: gio::SimpleAction,
-    completion: gtk::EntryCompletion,
+    completion: Arc<gtk::EntryCompletion>,
+}
+
+enum Message {
+    UpdateAutoCompleteList(Vec<String>),
 }
 
 impl LocationEntryWidget {
@@ -70,13 +76,16 @@ impl LocationEntryWidget {
 
         label_size_group.add_widget(&label);
 
+        let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+
         let widget = Self {
             container,
             entry,
             favorite_button,
             clear_button,
             favorites,
-            completion,
+            sender,
+            completion: Arc::new(completion),
             add_favorite: StringEventHandler::new("add-favorite"),
             remove_favorite: StringEventHandler::new("remove-favorite"),
             cleared: gio::SimpleAction::new("cleared", None),
@@ -84,6 +93,19 @@ impl LocationEntryWidget {
 
         widget.setup_event_handlers();
         widget.update_favorite_button_icon();
+
+        let parent = widget.clone();
+        receiver.attach(None, move |msg| {
+            match msg {
+                Message::UpdateAutoCompleteList(locations) => {
+                    parent.set_auto_complete_list(locations);
+                }
+            }
+
+            // Returning false here would close the receiver
+            // and have senders fail
+            glib::Continue(true)
+        });
 
         widget
     }
@@ -160,14 +182,23 @@ impl LocationEntryWidget {
     }
 
     fn update_completion_list(&self) {
+        let text = self.get_text();
+        let sender = self.sender.clone();
+
+        thread::spawn(move || {
+            if let Ok(locations) = api::search_location(&text) {
+                let _ = sender.send(Message::UpdateAutoCompleteList(locations));
+            }
+        });
+    }
+
+    fn set_auto_complete_list(&self, locations: Vec<String>) {
         let store = gtk::ListStore::new(&[String::static_type()]);
         let col_indices: [u32; 1] = [0];
 
-        if let Ok(locations) = api::search_location(&self.get_text()) {
-            for location in locations.iter() {
-                let values: [&dyn ToValue; 1] = [&location];
-                store.set(&store.append(), &col_indices, &values);
-            }
+        for location in locations.iter() {
+            let values: [&dyn ToValue; 1] = [&location];
+            store.set(&store.append(), &col_indices, &values);
         }
 
         self.completion.set_model(Some(&store));
