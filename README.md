@@ -22,5 +22,8 @@ make install-flatpak
 ```
 
 ## Credits
-* [Swiss public transport API](https://transport.opendata.ch)
-* [gtk-rs](https://gtk-rs.org)
+* [Swiss Public Transport API](https://transport.opendata.ch)
+* [gtk-rs (GTK bindings for rust)](https://gtk-rs.org)
+* [reqwest (HTTP client for rust)](https://docs.rs/reqwest)
+* [serde (serialization framework for rust)](https://serde.rs)
+* [chrono (date and time library for rust)](https://docs.rs/chrono)
