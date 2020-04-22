@@ -19,7 +19,12 @@ pub struct ViaBoxWidget {
 impl ViaBoxWidget {
     pub fn new(label_size_group: &gtk::SizeGroup, favorites: Arc<Favorites>) -> Self {
         let container = gtk::Box::new(gtk::Orientation::Vertical, 0);
+
         let add_button = gtk::Button::new_with_label("Add via");
+        add_button.set_margin_top(5);
+        add_button.set_margin_bottom(5);
+        add_button.set_margin_start(5);
+        add_button.set_margin_end(5);
 
         container.add(&add_button);
 
