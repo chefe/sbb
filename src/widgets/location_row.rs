@@ -12,7 +12,7 @@ use crate::favorites::Favorites;
 use crate::string_event_handler::StringEventHandler;
 
 #[derive(Clone)]
-pub struct LocationEntryWidget {
+pub struct LocationRowWidget {
     pub container: gtk::Box,
     entry: gtk::Entry,
     favorite_button: gtk::Button,
@@ -29,7 +29,7 @@ enum Message {
     UpdateAutoCompleteList(Vec<String>),
 }
 
-impl LocationEntryWidget {
+impl LocationRowWidget {
     pub fn new(
         caption: &str,
         label_size_group: &gtk::SizeGroup,

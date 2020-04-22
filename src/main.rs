@@ -28,8 +28,8 @@ fn build_ui(app: &gtk::Application) {
     let label_size_group = gtk::SizeGroup::new(gtk::SizeGroupMode::Horizontal);
     let favorites = Arc::new(Favorites::new());
 
-    let from_entry = LocationEntryWidget::new("From", &label_size_group, favorites.clone());
-    let to_entry = LocationEntryWidget::new("To", &label_size_group, favorites.clone());
+    let from_entry = LocationRowWidget::new("From", &label_size_group, favorites.clone());
+    let to_entry = LocationRowWidget::new("To", &label_size_group, favorites.clone());
     let button = gtk::Button::new_with_label("Submit");
 
     let conbox = ConnectionListWidget::new();

@@ -5,7 +5,7 @@ use gtk::prelude::*;
 use std::sync::{Arc, Mutex};
 
 use crate::favorites::Favorites;
-use crate::widgets::LocationEntryWidget;
+use crate::widgets::LocationRowWidget;
 
 #[derive(Clone)]
 pub struct ViaBoxWidget {
@@ -13,7 +13,7 @@ pub struct ViaBoxWidget {
     label_size_group: gtk::SizeGroup,
     favorites: Arc<Favorites>,
     add_button: gtk::Button,
-    vias: Arc<Mutex<Vec<LocationEntryWidget>>>,
+    vias: Arc<Mutex<Vec<LocationRowWidget>>>,
 }
 
 impl ViaBoxWidget {
@@ -52,8 +52,8 @@ impl ViaBoxWidget {
         });
     }
 
-    fn create_entry(&self) -> LocationEntryWidget {
-        let entry = LocationEntryWidget::new("Via", &self.label_size_group, self.favorites.clone());
+    fn create_entry(&self) -> LocationRowWidget {
+        let entry = LocationRowWidget::new("Via", &self.label_size_group, self.favorites.clone());
 
         let vias = self.vias.clone();
         let widget = entry.clone();
