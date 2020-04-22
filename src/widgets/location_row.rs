@@ -5,28 +5,21 @@ use gio::prelude::*;
 use gtk::prelude::*;
 
 use std::sync::Arc;
-use std::thread;
 
-use crate::api;
 use crate::favorites::Favorites;
 use crate::string_event_handler::StringEventHandler;
+use crate::widgets::LocationEntry;
 
 #[derive(Clone)]
 pub struct LocationRowWidget {
     pub container: gtk::Box,
-    entry: gtk::Entry,
+    entry: LocationEntry,
     favorite_button: gtk::Button,
     clear_button: gtk::Button,
     favorites: Arc<Favorites>,
-    sender: glib::Sender<Message>,
     add_favorite: StringEventHandler,
     remove_favorite: StringEventHandler,
     cleared: gio::SimpleAction,
-    completion: Arc<gtk::EntryCompletion>,
-}
-
-enum Message {
-    UpdateAutoCompleteList(Vec<String>),
 }
 
 impl LocationRowWidget {
@@ -42,18 +35,7 @@ impl LocationRowWidget {
         label.set_margin_start(5);
         label.set_margin_end(0);
 
-        let completion = gtk::EntryCompletion::new();
-        completion.set_text_column(0);
-        completion.set_minimum_key_length(2);
-        completion.set_popup_completion(true);
-
-        let entry = gtk::Entry::new();
-        entry.set_margin_top(5);
-        entry.set_margin_bottom(5);
-        entry.set_margin_start(5);
-        entry.set_margin_end(5);
-        entry.set_hexpand(true);
-        entry.set_completion(Some(&completion));
+        let entry = LocationEntry::new();
 
         let favorite_button = gtk::Button::new();
         favorite_button.set_margin_top(5);
@@ -70,13 +52,11 @@ impl LocationRowWidget {
 
         let container = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         container.add(&label);
-        container.add(&entry);
+        container.add(&entry.container);
         container.add(&favorite_button);
         container.add(&clear_button);
 
         label_size_group.add_widget(&label);
-
-        let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
 
         let widget = Self {
             container,
@@ -84,8 +64,6 @@ impl LocationRowWidget {
             favorite_button,
             clear_button,
             favorites,
-            sender,
-            completion: Arc::new(completion),
             add_favorite: StringEventHandler::new("add-favorite"),
             remove_favorite: StringEventHandler::new("remove-favorite"),
             cleared: gio::SimpleAction::new("cleared", None),
@@ -94,27 +72,13 @@ impl LocationRowWidget {
         widget.setup_event_handlers();
         widget.update_favorite_button_icon();
 
-        let parent = widget.clone();
-        receiver.attach(None, move |msg| {
-            match msg {
-                Message::UpdateAutoCompleteList(locations) => {
-                    parent.set_auto_complete_list(locations);
-                }
-            }
-
-            // Returning false here would close the receiver
-            // and have senders fail
-            glib::Continue(true)
-        });
-
         widget
     }
 
     fn setup_event_handlers(&self) {
         let widget = self.clone();
-        self.entry.connect_changed(move |_| {
+        self.entry.connect_changed(move || {
             widget.update_favorite_button_icon();
-            widget.update_completion_list();
         });
 
         let widget = self.clone();
@@ -148,10 +112,7 @@ impl LocationRowWidget {
     }
 
     pub fn get_text(&self) -> String {
-        match self.entry.get_text() {
-            Some(gstr) => gstr.to_string(),
-            None => String::from(""),
-        }
+        self.entry.get_text()
     }
 
     pub fn is_empty(&self) -> bool {
@@ -179,29 +140,6 @@ impl LocationRowWidget {
     fn set_button_icon(button: &gtk::Button, name: &str) {
         let icon = gtk::Image::new_from_icon_name(Some(name), gtk::IconSize::Menu);
         button.set_image(Some(&icon));
-    }
-
-    fn update_completion_list(&self) {
-        let text = self.get_text();
-        let sender = self.sender.clone();
-
-        thread::spawn(move || {
-            if let Ok(locations) = api::search_location(&text) {
-                let _ = sender.send(Message::UpdateAutoCompleteList(locations));
-            }
-        });
-    }
-
-    fn set_auto_complete_list(&self, locations: Vec<String>) {
-        let store = gtk::ListStore::new(&[String::static_type()]);
-        let col_indices: [u32; 1] = [0];
-
-        for location in locations.iter() {
-            let values: [&dyn ToValue; 1] = [&location];
-            store.set(&store.append(), &col_indices, &values);
-        }
-
-        self.completion.set_model(Some(&store));
     }
 
     pub fn connect_add_favorite<F>(&self, callback: F)
