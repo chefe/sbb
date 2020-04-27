@@ -34,22 +34,49 @@ pub fn search_location(query: &str) -> Result<Vec<String>, reqwest::Error> {
     Ok(locations)
 }
 
+pub struct SearchConnectionRequest {
+    pub from: String,
+    pub to: String,
+    pub vias: Vec<String>,
+    pub date: Option<String>,
+    pub time: Option<String>,
+    pub is_arrival_time: bool,
+}
+
 pub fn search_connection(
-    from: &str,
-    to: &str,
-    vias: Vec<String>,
+    request: SearchConnectionRequest,
 ) -> Result<Vec<Connection>, reqwest::Error> {
-    let vias = vias
+    let vias = request
+        .vias
         .iter()
         .map(|via| format!("&via[]={}", via))
         .collect::<Vec<String>>()
         .join("");
 
+    let date = match request.date {
+        Some(d) => format!("&date={}", d),
+        None => String::from(""),
+    };
+
+    let time = match request.time {
+        Some(t) => {
+            let at = match request.is_arrival_time {
+                true => "1",
+                false => "0",
+            };
+
+            format!("&time={}&isArrivalTime={}", t, at)
+        }
+        None => String::from(""),
+    };
+
     let url = format!(
-        "http://transport.opendata.ch/v1/connections?from={from}&to={to}{vias}",
-        from = from,
-        to = to,
+        "http://transport.opendata.ch/v1/connections?from={from}&to={to}{vias}{date}{time}",
+        from = request.from,
+        to = request.to,
         vias = vias,
+        date = date,
+        time = time,
     );
 
     let response = reqwest::blocking::get(&url)?.json::<ConnectionsResponse>()?;
