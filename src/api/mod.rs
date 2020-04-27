@@ -59,24 +59,23 @@ pub fn search_connection(
     };
 
     let time = match request.time {
-        Some(t) => {
-            let at = match request.is_arrival_time {
-                true => "1",
-                false => "0",
-            };
-
-            format!("&time={}&isArrivalTime={}", t, at)
-        }
+        Some(t) => format!("&time={}", t),
         None => String::from(""),
     };
 
+    let arrival_time = match request.is_arrival_time {
+        true => "&isArrivalTime=1",
+        false => "&isArrivalTime=0",
+    };
+
     let url = format!(
-        "http://transport.opendata.ch/v1/connections?from={from}&to={to}{vias}{date}{time}",
+        "http://transport.opendata.ch/v1/connections?from={from}&to={to}{vias}{date}{time}{arrival_time}",
         from = request.from,
         to = request.to,
         vias = vias,
         date = date,
         time = time,
+        arrival_time = arrival_time,
     );
 
     let response = reqwest::blocking::get(&url)?.json::<ConnectionsResponse>()?;
