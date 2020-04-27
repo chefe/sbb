@@ -12,7 +12,6 @@ pub struct ViaBoxWidget {
     pub container: gtk::Box,
     label_size_group: gtk::SizeGroup,
     favorites: Arc<Favorites>,
-    add_button: gtk::Button,
     vias: Arc<Mutex<Vec<LocationRowWidget>>>,
 }
 
@@ -20,41 +19,27 @@ impl ViaBoxWidget {
     pub fn new(label_size_group: &gtk::SizeGroup, favorites: Arc<Favorites>) -> Self {
         let container = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
-        let add_button = gtk::Button::new_with_label("Add via");
-        add_button.set_margin_top(5);
-        add_button.set_margin_bottom(5);
-        add_button.set_margin_start(5);
-        add_button.set_margin_end(5);
-
-        container.add(&add_button);
-
         let widget = Self {
             container,
             label_size_group: label_size_group.clone(),
             favorites,
-            add_button,
             vias: Arc::new(Mutex::new(vec![])),
         };
 
-        widget.setup_event_handlers();
+        widget.add_entry();
 
         widget
     }
 
-    fn setup_event_handlers(&self) {
-        let parent = self.clone();
+    fn add_entry(&self) {
+        let entry = self.create_entry();
+        self.container.add(&entry.container);
+
         let vias = self.vias.clone();
-        self.add_button.connect_clicked(move |_| {
-            let entry = parent.create_entry();
+        let mut vias = vias.lock().unwrap();
+        vias.push(entry);
 
-            // Release lock before reload is called
-            {
-                let mut vias = vias.lock().unwrap();
-                vias.push(entry);
-            }
-
-            parent.reload();
-        });
+        self.container.show_all();
     }
 
     fn create_entry(&self) -> LocationRowWidget {
@@ -64,39 +49,50 @@ impl ViaBoxWidget {
         let widget = entry.clone();
         let parent = self.clone();
         entry.connect_cleared(move || {
-            // Release lock before reload is called
-            {
-                let mut vias = vias.lock().unwrap();
-                vias.retain(|f| f.container != widget.container);
+            let mut vias = vias.lock().unwrap();
+
+            if vias.len() == 1 {
+                // the last element can no be removed
+                return;
             }
 
-            parent.reload();
+            vias.retain(|f| f.container != widget.container);
+            parent.container.remove(&widget.container);
+            parent.container.show_all();
+        });
+
+        let parent = self.clone();
+        entry.connect_changed(move || {
+            parent.add_new_via_if_required();
         });
 
         entry
     }
 
-    fn reload(&self) {
-        self.container.foreach(|child| {
-            self.container.remove(child);
-        });
+    fn add_new_via_if_required(&self) {
+        let are_all_vias_filled = self
+            .get_vias_matching(|via| via.is_empty() == true)
+            .is_empty();
 
-        let vias = self.vias.clone();
-        for via in vias.lock().unwrap().iter() {
-            self.container.add(&via.container);
+        if are_all_vias_filled {
+            self.add_entry();
         }
-
-        self.container.add(&self.add_button);
-        self.container.show_all();
     }
 
     pub fn get_vias(&self) -> Vec<String> {
+        self.get_vias_matching(|via| via.is_empty() == false)
+    }
+
+    fn get_vias_matching<F>(&self, filter: F) -> Vec<String>
+    where
+        F: Fn(&str) -> bool,
+    {
         let vias = self.vias.clone();
         let vias = vias.lock().unwrap();
 
         vias.iter()
             .map(|entry| entry.get_text())
-            .filter(|via| via.is_empty() == false)
+            .filter(|via| filter(via))
             .collect()
     }
 }

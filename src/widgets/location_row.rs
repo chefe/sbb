@@ -164,4 +164,13 @@ impl LocationRowWidget {
             callback();
         });
     }
+
+    pub fn connect_changed<F>(&self, callback: F)
+    where
+        F: Fn() + 'static,
+    {
+        self.entry.connect_changed(move || {
+            callback();
+        });
+    }
 }
