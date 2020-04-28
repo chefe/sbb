@@ -69,7 +69,7 @@ pub fn search_connection(
     };
 
     let url = format!(
-        "http://transport.opendata.ch/v1/connections?from={from}&to={to}{vias}{date}{time}{arrival_time}",
+        "http://transport.opendata.ch/v1/connections?limit=6&from={from}&to={to}{vias}{date}{time}{arrival_time}",
         from = request.from,
         to = request.to,
         vias = vias,
