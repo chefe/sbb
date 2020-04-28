@@ -1,17 +1,15 @@
 extern crate chrono;
+extern crate gio;
 extern crate gtk;
 
 use chrono::prelude::*;
+use gio::prelude::*;
 use gtk::prelude::*;
 
 use std::sync::{Arc, Mutex};
 
 #[derive(Clone)]
-pub struct TimePickerWidget {
-    pub container: gtk::Box,
-    button: gtk::Button,
-    entry: gtk::Entry,
-    label: gtk::Label,
+pub struct DateTimePickerPopover {
     popover: gtk::Popover,
     now_button: gtk::Button,
     tonight_button: gtk::Button,
@@ -23,26 +21,11 @@ pub struct TimePickerWidget {
     month_input: gtk::SpinButton,
     year_input: gtk::SpinButton,
     time: Arc<Mutex<Option<DateTime<Local>>>>,
-    is_arrival_time: Arc<Mutex<bool>>,
+    changed: gio::SimpleAction,
 }
 
-impl TimePickerWidget {
-    pub fn new(label_size_group: &gtk::SizeGroup) -> Self {
-        let container = gtk::Box::new(gtk::Orientation::Horizontal, 0);
-
-        let label = gtk::Label::new(Some("Time:"));
-        Self::set_default_margin(label.clone());
-        label_size_group.add_widget(&label);
-
-        let entry = gtk::Entry::new();
-        Self::set_default_margin(entry.clone());
-        entry.set_editable(false);
-        entry.set_hexpand(true);
-
-        let button = gtk::Button::new();
-        Self::set_default_margin(button.clone());
-        button.set_margin_start(0);
-
+impl DateTimePickerPopover {
+    pub fn new(entry: &gtk::Entry) -> Self {
         let hour_input = Self::create_spin_button(0, 23);
         let minute_input = Self::create_spin_button(0, 59);
         let day_input = Self::create_spin_button(1, 31);
@@ -77,19 +60,11 @@ impl TimePickerWidget {
         popover_box.add(&tomorrow_evening_button);
         popover_box.add(&custom_time_box);
 
-        let popover = gtk::Popover::new(Some(&entry));
+        let popover = gtk::Popover::new(Some(entry));
         popover.set_position(gtk::PositionType::Bottom);
         popover.add(&popover_box);
 
-        container.add(&label);
-        container.add(&entry);
-        container.add(&button);
-
         let widget = Self {
-            container,
-            button,
-            entry,
-            label,
             popover,
             now_button,
             tonight_button,
@@ -101,94 +76,59 @@ impl TimePickerWidget {
             month_input,
             year_input,
             time: Arc::new(Mutex::new(None)),
-            is_arrival_time: Arc::new(Mutex::new(false)),
+            changed: gio::SimpleAction::new("changed", None),
         };
 
         widget.setup_event_handlers();
-        widget.update_entry_text();
-        widget.update_button_icon();
 
         widget
     }
 
-    pub fn get_date(&self) -> Option<String> {
-        match *self.time.lock().unwrap() {
-            Some(t) => {
-                if t.date() == Local::today() {
-                    return None;
-                }
-
-                Some(t.format("%Y-%m-%d").to_string())
-            }
-            None => None,
-        }
+    pub fn get_date_time(&self) -> Option<DateTime<Local>> {
+        *self.time.lock().unwrap()
     }
 
-    pub fn get_time(&self) -> Option<String> {
-        match *self.time.lock().unwrap() {
-            Some(t) => Some(t.format("%H:%M").to_string()),
-            None => None,
-        }
+    pub fn popup(&self) {
+        self.popover.show_all();
+        self.popover.popup();
+
+        let time = self.time.lock().unwrap();
+        self.set_inputs_to_time(*time);
     }
 
-    pub fn is_arrival_time(&self) -> bool {
-        *self.is_arrival_time.lock().unwrap()
+    pub fn connect_changed<F>(&self, callback: F)
+    where
+        F: Fn() + 'static,
+    {
+        self.changed.connect_activate(move |_, _| {
+            callback();
+        });
     }
 
     fn setup_event_handlers(&self) {
         let widget = self.clone();
-        self.entry.connect_focus_in_event(move |_, _| {
-            widget.popover.show_all();
-            widget.popover.popup();
-
-            let time = widget.time.lock().unwrap();
-            widget.set_inputs_to_time(*time);
-
-            gtk::Inhibit(true)
-        });
-
-        let widget = self.clone();
-        self.button.connect_clicked(move |_| {
-            {
-                let mut is_arrival_time = widget.is_arrival_time.lock().unwrap();
-                *is_arrival_time = !(*is_arrival_time);
-            }
-
-            widget.update_button_icon();
-            widget.update_entry_text();
-        });
-
-        let widget = self.clone();
         self.now_button.connect_clicked(move |_| {
-            widget.set_inputs_to_time(None);
-            widget.set_time(None);
-            widget.popover.popdown();
+            widget.set_time_and_popdown(None);
         });
 
         let widget = self.clone();
         self.tonight_button.connect_clicked(move |_| {
             let time = Local::today().and_hms(19, 0, 0);
-            widget.set_inputs_to_time(Some(time));
-            widget.set_time(Some(time));
-            widget.popover.popdown();
+            widget.set_time_and_popdown(Some(time));
         });
 
         let widget = self.clone();
         self.tomorrow_morning_button.connect_clicked(move |_| {
             let tomorrow = Local::today() + chrono::Duration::days(1);
             let time = tomorrow.and_hms(9, 0, 0);
-            widget.set_inputs_to_time(Some(time));
-            widget.set_time(Some(time));
-            widget.popover.popdown();
+            widget.set_time_and_popdown(Some(time));
         });
 
         let widget = self.clone();
         self.tomorrow_evening_button.connect_clicked(move |_| {
             let tomorrow = Local::today() + chrono::Duration::days(1);
             let time = tomorrow.and_hms(19, 0, 0);
-            widget.set_inputs_to_time(Some(time));
-            widget.set_time(Some(time));
-            widget.popover.popdown();
+            widget.set_time_and_popdown(Some(time));
         });
 
         let widget = self.clone();
@@ -215,6 +155,12 @@ impl TimePickerWidget {
         self.year_input.connect_value_changed(move |_| {
             widget.store_time();
         });
+    }
+
+    fn set_time_and_popdown(&self, time: Option<DateTime<Local>>) {
+        self.set_inputs_to_time(time);
+        self.set_time(time);
+        self.popover.popdown();
     }
 
     fn store_time(&self) {
@@ -248,36 +194,8 @@ impl TimePickerWidget {
         // this is required because the lock needs to be released
         // before the update_entry_text method is called
         if trigger_button_update {
-            self.update_entry_text();
+            self.changed.activate(None);
         }
-    }
-
-    fn update_entry_text(&self) {
-        let arrival_text = match self.is_arrival_time() {
-            true => "Arrival",
-            false => "Departure",
-        };
-
-        let entry_text = match *self.time.lock().unwrap() {
-            Some(t) => {
-                let time = t.format("%Y-%m-%d %H:%M").to_string();
-                format!("{} at {}", arrival_text, time)
-            }
-            None => format!("{} now", arrival_text),
-        };
-
-        self.entry.set_text(&entry_text);
-    }
-
-    fn update_button_icon(&self) {
-        let icon = if self.is_arrival_time() {
-            "orientation-portrait-left"
-        } else {
-            "orientation-portrait-right"
-        };
-
-        let icon = gtk::Image::new_from_icon_name(Some(icon), gtk::IconSize::Menu);
-        self.button.set_image(Some(&icon));
     }
 
     fn set_inputs_to_time(&self, time: Option<DateTime<Local>>) {

@@ -41,7 +41,7 @@ fn build_ui(app: &gtk::Application) {
     let fav_box = FavoriteBoxWidget::new(favorites.clone());
     let via_box = ViaBoxWidget::new(&label_size_group, favorites.clone());
 
-    let time_picker = TimePickerWidget::new(&label_size_group);
+    let time_input = TimeRowWidget::new(&label_size_group);
 
     {
         let from_entry = from_entry.clone();
@@ -60,7 +60,7 @@ fn build_ui(app: &gtk::Application) {
     vbox.add(&from_entry.container);
     vbox.add(&to_entry.container);
     vbox.add(&via_box.container);
-    vbox.add(&time_picker.container);
+    vbox.add(&time_input.container);
     vbox.add(&button);
     vbox.add(&conbox.container);
 
@@ -69,9 +69,9 @@ fn build_ui(app: &gtk::Application) {
             from: from_entry.get_text(),
             to: to_entry.get_text(),
             vias: via_box.get_vias(),
-            date: time_picker.get_date(),
-            time: time_picker.get_time(),
-            is_arrival_time: time_picker.is_arrival_time(),
+            date: time_input.get_date(),
+            time: time_input.get_time(),
+            is_arrival_time: time_input.is_arrival_time(),
         };
 
         let connections = sbb::api::search_connection(request).unwrap();
