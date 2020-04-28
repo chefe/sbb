@@ -1,3 +1,4 @@
+extern crate gdk;
 extern crate gtk;
 
 use gtk::prelude::*;
@@ -6,6 +7,9 @@ use std::sync::Arc;
 
 use crate::favorites::Favorites;
 use crate::string_event_handler::StringEventHandler;
+
+const STRING_TARGET_INFO: u32 = 0;
+const STRING_TARGET_NAME: &'static str = "STRING";
 
 #[derive(Clone)]
 pub struct FavoriteBoxWidget {
@@ -41,11 +45,56 @@ impl FavoriteBoxWidget {
         });
     }
 
+    fn enable_drag_an_drop_on_button(&self, button: &gtk::Button) {
+        let targets = vec![gtk::TargetEntry::new(
+            STRING_TARGET_NAME,
+            gtk::TargetFlags::SAME_APP,
+            STRING_TARGET_INFO,
+        )];
+
+        // enable dragging
+        button.drag_source_set(
+            gdk::ModifierType::MODIFIER_MASK,
+            &targets,
+            gdk::DragAction::COPY,
+        );
+
+        // enable dropping
+        button.drag_dest_set(gtk::DestDefaults::ALL, &targets, gdk::DragAction::COPY);
+
+        // set drag data
+        button.connect_drag_data_get(|b, _, s, _, _| {
+            let caption = b.get_label().unwrap().as_str().to_owned();
+
+            s.set(
+                &gdk::SELECTION_TYPE_STRING,
+                STRING_TARGET_INFO as i32,
+                &caption.into_bytes(),
+            );
+        });
+
+        // read drag data
+        let action = self.favorite_selected.clone();
+        button.connect_drag_data_received(move |b, _, _, _, s, _, _| {
+            let caption = b.get_label().unwrap();
+
+            if let Some(text) = s.get_text() {
+                // trigger the favorite_selected callback with the source
+                action.trigger(&text.as_str());
+
+                // trigger the favorite_selected callback with the destination
+                action.trigger(caption.as_str());
+            }
+        });
+    }
+
     fn update_favorites(&self) {
         self.clear();
 
         for favorite in self.favorites.get() {
             let button = gtk::Button::new_with_label(&favorite);
+            self.enable_drag_an_drop_on_button(&button);
+
             self.container.add(&button);
 
             let action = self.favorite_selected.clone();

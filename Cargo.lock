@@ -976,6 +976,7 @@ name = "sbb"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "gdk",
  "gio",
  "glib 0.8.2",
  "gtk",
