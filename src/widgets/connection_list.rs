@@ -1,5 +1,3 @@
-extern crate gtk;
-
 use gtk::prelude::*;
 
 use crate::api::Connection;

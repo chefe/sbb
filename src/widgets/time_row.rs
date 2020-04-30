@@ -1,6 +1,3 @@
-extern crate chrono;
-extern crate gtk;
-
 use chrono::prelude::*;
 use gtk::prelude::*;
 

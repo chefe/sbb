@@ -1,7 +1,3 @@
-extern crate chrono;
-extern crate gio;
-extern crate gtk;
-
 use chrono::prelude::*;
 use gio::prelude::*;
 use gtk::prelude::*;

@@ -1,6 +1,3 @@
-extern crate gio;
-extern crate glib;
-
 use gio::prelude::*;
 
 use std::fs;

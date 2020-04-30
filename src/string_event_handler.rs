@@ -1,5 +1,3 @@
-extern crate gio;
-
 use gio::prelude::*;
 
 #[derive(Clone)]

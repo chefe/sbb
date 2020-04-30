@@ -1,6 +1,3 @@
-extern crate reqwest;
-extern crate serde;
-
 mod models;
 
 pub use self::models::Connection;
