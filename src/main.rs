@@ -1,5 +1,6 @@
 use gio::prelude::*;
 use gtk::prelude::*;
+use libhandy::prelude::*;
 
 use std::sync::Arc;
 
@@ -7,6 +8,12 @@ use sbb::favorites::Favorites;
 use sbb::widgets::*;
 
 const APP_TITLE: &str = "SBB";
+const MAIN_PAGE: &str = "main_page";
+const CONNECTION_LIST_PAGE: &str = "connection_list_page";
+const PAGE_WIDTH: i32 = 320;
+const PAGE_HEIGHT: i32 = -1;
+const WINDOW_WIDTH: i32 = 360;
+const WINDOW_HEIGHT: i32 = 648;
 
 fn main() {
     let app = gtk::Application::new(Some("io.chefe.sbb"), Default::default())
@@ -21,35 +28,94 @@ fn main() {
 }
 
 fn build_ui(app: &gtk::Application) {
-    let window = create_application_window(app);
-    let favorites = Arc::new(Favorites::new());
+    let main_header = gtk::HeaderBar::new();
+    main_header.set_title(Some(APP_TITLE));
+    main_header.set_hexpand(true);
+    main_header.set_show_close_button(true);
 
-    let search = SearchWidget::new(favorites.clone());
+    let back_button =
+        gtk::Button::new_from_icon_name(Some("go-previous-symbolic"), gtk::IconSize::Menu);
 
-    let conbox = ConnectionListWidget::new();
+    let connection_list_header = gtk::HeaderBar::new();
+    connection_list_header.set_show_close_button(true);
+    connection_list_header.set_hexpand(true);
+    connection_list_header.add(&back_button);
 
-    let vbox = gtk::Box::new(gtk::Orientation::Vertical, 0);
-    vbox.add(&search.container);
-    vbox.add(&conbox.container);
+    let header_group = libhandy::HeaderGroup::new();
+    header_group.add_header_bar(&main_header);
+    header_group.add_header_bar(&connection_list_header);
 
-    search.connect_search(move |data| {
-        let connections = sbb::api::search_connection(data).unwrap();
-        conbox.set_connections(connections);
-    });
+    let title_separator = gtk::Separator::new(gtk::Orientation::Vertical);
+    let content_separator = gtk::Separator::new(gtk::Orientation::Vertical);
 
-    window.add(&vbox);
-    window.show_all();
-}
+    let title_leaflet = libhandy::Leaflet::new();
+    title_leaflet.add(&main_header);
+    title_leaflet.set_child_name(&main_header, Some(MAIN_PAGE));
+    title_leaflet.add(&title_separator);
+    title_leaflet.add(&connection_list_header);
+    title_leaflet.set_child_name(&connection_list_header, Some(CONNECTION_LIST_PAGE));
 
-fn create_application_window(app: &gtk::Application) -> gtk::ApplicationWindow {
-    let header_bar = gtk::HeaderBar::new();
-    header_bar.set_title(Some(APP_TITLE));
-    header_bar.set_show_close_button(true);
+    let title_bar = libhandy::TitleBar::new();
+    title_bar.add(&title_leaflet);
 
     let window = gtk::ApplicationWindow::new(app);
     window.set_title(APP_TITLE);
-    window.set_default_size(360, 648);
-    window.set_titlebar(Some(&header_bar));
+    window.set_default_size(WINDOW_WIDTH, WINDOW_HEIGHT);
+    window.set_titlebar(Some(&title_bar));
 
-    return window;
+    let favorites = Arc::new(Favorites::new());
+
+    let search_page = SearchWidget::new(favorites.clone());
+    search_page
+        .container
+        .set_size_request(PAGE_WIDTH, PAGE_HEIGHT);
+
+    let connection_list_page = ConnectionListWidget::new();
+    connection_list_page
+        .container
+        .set_size_request(PAGE_WIDTH, PAGE_HEIGHT);
+
+    let content_leaflet = libhandy::Leaflet::new();
+    content_leaflet.add(&search_page.container);
+    content_leaflet.set_child_name(&search_page.container, Some(MAIN_PAGE));
+    content_leaflet.add(&content_separator);
+    content_leaflet.add(&connection_list_page.container);
+    content_leaflet.set_child_name(&connection_list_page.container, Some(CONNECTION_LIST_PAGE));
+
+    let left_page_size_group = gtk::SizeGroup::new(gtk::SizeGroupMode::Horizontal);
+    left_page_size_group.add_widget(&main_header);
+    left_page_size_group.add_widget(&search_page.container);
+
+    let right_page_size_group = gtk::SizeGroup::new(gtk::SizeGroupMode::Horizontal);
+    right_page_size_group.add_widget(&connection_list_header);
+    right_page_size_group.add_widget(&connection_list_page.container);
+
+    let separator_size_group = gtk::SizeGroup::new(gtk::SizeGroupMode::Horizontal);
+    separator_size_group.add_widget(&title_separator);
+    separator_size_group.add_widget(&content_separator);
+
+    content_leaflet
+        .bind_property("visible-child-name", &title_leaflet, "visible-child-name")
+        .flags(glib::BindingFlags::BIDIRECTIONAL | glib::BindingFlags::SYNC_CREATE)
+        .build();
+
+    content_leaflet
+        .bind_property("folded", &back_button, "visible")
+        .flags(glib::BindingFlags::SYNC_CREATE)
+        .build();
+
+    let leaflet = content_leaflet.clone();
+    search_page.connect_search(move |data| {
+        let connections = sbb::api::search_connection(data).unwrap();
+        connection_list_page.set_connections(connections);
+        leaflet.set_visible_child_name(CONNECTION_LIST_PAGE);
+    });
+
+    let leaflet = content_leaflet.clone();
+    back_button.connect_clicked(move |_| {
+        leaflet.set_visible_child_name(MAIN_PAGE);
+    });
+
+    window.add(&content_leaflet);
+    window.show_all();
 }

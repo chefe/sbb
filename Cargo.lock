@@ -8,7 +8,7 @@ checksum = "444daefa55f229af145ea58d77efd23725024ee1f6f3102743709aa6b18c663e"
 dependencies = [
  "atk-sys",
  "bitflags",
- "glib 0.9.3",
+ "glib",
  "glib-sys",
  "gobject-sys",
  "libc",
@@ -64,7 +64,7 @@ checksum = "157049ba9618aa3a61c39d5d785102c04d3b1f40632a706c621a9aedc21e6084"
 dependencies = [
  "bitflags",
  "cairo-sys-rs",
- "glib 0.9.3",
+ "glib",
  "glib-sys",
  "gobject-sys",
  "libc",
@@ -259,7 +259,7 @@ dependencies = [
  "gdk-sys",
  "gio",
  "gio-sys",
- "glib 0.9.3",
+ "glib",
  "glib-sys",
  "gobject-sys",
  "libc",
@@ -275,7 +275,7 @@ dependencies = [
  "gdk-pixbuf-sys",
  "gio",
  "gio-sys",
- "glib 0.9.3",
+ "glib",
  "glib-sys",
  "gobject-sys",
  "libc",
@@ -333,7 +333,7 @@ dependencies = [
  "futures-io",
  "futures-util",
  "gio-sys",
- "glib 0.9.3",
+ "glib",
  "glib-sys",
  "gobject-sys",
  "lazy_static",
@@ -350,19 +350,6 @@ dependencies = [
  "gobject-sys",
  "libc",
  "pkg-config",
-]
-
-[[package]]
-name = "glib"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be27232841baa43e0fd5ae003f7941925735b2f733a336dc75f07b9eff415e7b"
-dependencies = [
- "bitflags",
- "glib-sys",
- "gobject-sys",
- "lazy_static",
- "libc",
 ]
 
 [[package]]
@@ -421,7 +408,7 @@ dependencies = [
  "gdk-sys",
  "gio",
  "gio-sys",
- "glib 0.9.3",
+ "glib",
  "glib-sys",
  "gobject-sys",
  "gtk-sys",
@@ -608,6 +595,46 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99e85c08494b21a9054e7fe1374a732aeadaff3980b6990b94bfd3a70f690005"
 
 [[package]]
+name = "libhandy"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2aa9f5620e4143358bcd645fe7d7d27b974ed9148cbdd490bc811813899afa07"
+dependencies = [
+ "bitflags",
+ "gdk",
+ "gdk-sys",
+ "gio",
+ "gio-sys",
+ "glib",
+ "glib-sys",
+ "gobject-sys",
+ "gtk",
+ "gtk-sys",
+ "lazy_static",
+ "libc",
+ "libhandy-sys",
+ "pango",
+]
+
+[[package]]
+name = "libhandy-sys"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d707af842e918719b71af0ac6cf31d1843f6e8a4d1e9c733b998d8d482e60446"
+dependencies = [
+ "gdk",
+ "gdk-sys",
+ "gio",
+ "gio-sys",
+ "glib-sys",
+ "gobject-sys",
+ "gtk-sys",
+ "libc",
+ "pango-sys",
+ "pkg-config",
+]
+
+[[package]]
 name = "log"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -773,7 +800,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e9c6b728f1be8edb5f9f981420b651d5ea30bdb9de89f1f1262d0084a020577"
 dependencies = [
  "bitflags",
- "glib 0.9.3",
+ "glib",
  "glib-sys",
  "gobject-sys",
  "lazy_static",
@@ -978,8 +1005,9 @@ dependencies = [
  "chrono",
  "gdk",
  "gio",
- "glib 0.8.2",
+ "glib",
  "gtk",
+ "libhandy",
  "reqwest",
  "serde",
 ]
