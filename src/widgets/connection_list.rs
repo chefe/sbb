@@ -29,9 +29,31 @@ impl ConnectionListWidget {
         for connection in connections.iter() {
             let connection_widget = ConnectionWidget::new(&connection);
             self.main_box.add(&connection_widget.container);
+
+            let main_box = self.main_box.clone();
+            connection_widget
+                .container
+                .connect_property_expanded_notify(move |widget| {
+                    if widget.get_expanded() {
+                        Self::collapse_all_except(&main_box, widget);
+                    }
+                });
         }
 
         self.main_box.show_all();
+    }
+
+    fn collapse_all_except(main_box: &gtk::Box, widget: &gtk::Expander) {
+        for child in main_box.get_children() {
+            match child.downcast::<gtk::Expander>() {
+                Ok(expander) => {
+                    if widget.get_label_widget() != expander.get_label_widget() {
+                        expander.set_expanded(false);
+                    }
+                }
+                _ => {}
+            }
+        }
     }
 
     fn clear(&self) {
