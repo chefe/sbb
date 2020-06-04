@@ -36,14 +36,17 @@ impl SectionWidget {
         let arrival_platform = Self::create_platform_label(&section.arrival.platform);
         container.attach(&arrival_platform, 2, 2, 1, 1);
 
-        let journey_name = Self::create_label_with_default_margin();
-        journey_name.set_markup(&Self::get_journey_name(&section));
-        container.attach(&journey_name, 1, 1, 1, 1);
+        let journey_text = Self::get_journey_text(&section);
+        if !journey_text.is_empty() {
+            let journey_name = Self::create_label_with_default_margin();
+            journey_name.set_markup(&journey_text);
+            container.attach(&journey_name, 1, 1, 1, 1);
+        }
 
         Self { container }
     }
 
-    fn get_journey_name(section: &Section) -> String {
+    fn get_journey_text(section: &Section) -> String {
         if let Some(journey) = section.journey.as_ref() {
             return format!("<i>{}</i>", journey.name);
         }
