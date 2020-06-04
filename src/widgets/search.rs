@@ -37,11 +37,14 @@ impl SearchWidget {
         {
             let from_entry = from_entry.clone();
             let to_entry = to_entry.clone();
+            let via_box = via_box.clone();
             fav_box.connect_selected(move |favorite| {
                 if from_entry.is_empty() {
                     from_entry.set_text(favorite);
                 } else if to_entry.is_empty() {
                     to_entry.set_text(favorite);
+                } else {
+                    via_box.add_via_with_location(favorite);
                 }
             });
         }
