@@ -1,16 +1,16 @@
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Location {
     pub name: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Walk {
     pub duration: u16,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Journey {
     pub name: String,
     pub category: String,
@@ -22,7 +22,7 @@ pub struct Journey {
     pub pass_list: Vec<Stop>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Stop {
     pub station: Location,
     pub arrival: Option<String>,
@@ -31,7 +31,7 @@ pub struct Stop {
     pub platform: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Section {
     pub departure: Stop,
     pub arrival: Stop,
@@ -39,7 +39,7 @@ pub struct Section {
     pub walk: Option<Walk>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Connection {
     pub from: Stop,
     pub to: Stop,
