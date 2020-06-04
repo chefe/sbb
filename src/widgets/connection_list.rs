@@ -26,8 +26,8 @@ impl ConnectionListWidget {
     pub fn set_connections(&self, connections: Vec<Connection>) {
         self.clear();
 
-        for (index, connection) in connections.iter().enumerate() {
-            let connection_widget = ConnectionWidget::new(&connection, index + 1);
+        for connection in connections.iter() {
+            let connection_widget = ConnectionWidget::new(&connection);
             self.main_box.add(&connection_widget.container);
         }
 
