@@ -62,7 +62,7 @@ impl ConnectionWidget {
 
     fn get_expander_label_text(connection: &Connection) -> String {
         format!(
-            "<big><tt>{}</tt> {} - <tt>{}</tt> {}</big>",
+            "<b>{} {} - {} {}</b>",
             Self::format_time(&connection.from.departure),
             connection.from.station.name,
             Self::format_time(&connection.to.arrival),
