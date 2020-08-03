@@ -135,7 +135,7 @@ impl LocationRowWidget {
     }
 
     fn set_button_icon(button: &gtk::Button, name: &str) {
-        let icon = gtk::Image::new_from_icon_name(Some(name), gtk::IconSize::Menu);
+        let icon = gtk::Image::from_icon_name(Some(name), gtk::IconSize::Menu);
         button.set_image(Some(&icon));
     }
 

@@ -95,10 +95,7 @@ impl LocationEntry {
     }
 
     pub fn get_text(&self) -> String {
-        match self.container.get_text() {
-            Some(gstr) => gstr.to_string(),
-            None => String::from(""),
-        }
+        self.container.get_text().to_string()
     }
 
     pub fn set_text(&self, text: &str) {

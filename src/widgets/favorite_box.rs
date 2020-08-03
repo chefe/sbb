@@ -89,7 +89,7 @@ impl FavoriteBoxWidget {
         self.clear();
 
         for favorite in self.favorites.get() {
-            let button = gtk::Button::new_with_label(&favorite);
+            let button = gtk::Button::with_label(&favorite);
             self.enable_drag_an_drop_on_button(&button);
 
             self.container.add(&button);

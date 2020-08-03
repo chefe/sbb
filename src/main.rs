@@ -34,7 +34,7 @@ fn build_ui(app: &gtk::Application) {
     main_header.set_show_close_button(true);
 
     let back_button =
-        gtk::Button::new_from_icon_name(Some("go-previous-symbolic"), gtk::IconSize::Menu);
+        gtk::Button::from_icon_name(Some("go-previous-symbolic"), gtk::IconSize::Menu);
 
     let connection_list_header = gtk::HeaderBar::new();
     connection_list_header.set_show_close_button(true);

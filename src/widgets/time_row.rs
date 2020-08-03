@@ -126,7 +126,7 @@ impl TimeRowWidget {
             "orientation-portrait-right"
         };
 
-        let icon = gtk::Image::new_from_icon_name(Some(icon), gtk::IconSize::Menu);
+        let icon = gtk::Image::from_icon_name(Some(icon), gtk::IconSize::Menu);
         self.button.set_image(Some(&icon));
     }
 

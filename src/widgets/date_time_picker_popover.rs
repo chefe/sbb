@@ -214,7 +214,7 @@ impl DateTimePickerPopover {
     }
 
     fn create_spin_button(min: u32, max: u32) -> gtk::SpinButton {
-        let entry = gtk::SpinButton::new_with_range(min as f64, max as f64, 1.0);
+        let entry = gtk::SpinButton::with_range(min as f64, max as f64, 1.0);
         entry.set_orientation(gtk::Orientation::Vertical);
         entry.set_wrap(true);
         entry
@@ -227,7 +227,7 @@ impl DateTimePickerPopover {
     }
 
     fn create_button(caption: &str) -> gtk::Button {
-        let button = gtk::Button::new_with_label(caption);
+        let button = gtk::Button::with_label(caption);
         Self::set_default_margin(button.clone());
         button
     }

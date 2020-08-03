@@ -23,7 +23,7 @@ impl SearchWidget {
         let from_entry = LocationRowWidget::new("From", &label_size_group, favorites.clone());
         let to_entry = LocationRowWidget::new("To", &label_size_group, favorites.clone());
 
-        let button = gtk::Button::new_with_label("Submit");
+        let button = gtk::Button::with_label("Submit");
         button.set_margin_top(5);
         button.set_margin_bottom(5);
         button.set_margin_start(5);
