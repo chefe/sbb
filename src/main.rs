@@ -105,10 +105,28 @@ fn build_ui(app: &gtk::Application) {
         .build();
 
     let leaflet = content_leaflet.clone();
-    search_page.connect_search(move |data| {
-        let connections = sbb::api::search_connection(data).unwrap();
-        connection_list_page.set_connections(connections);
-        leaflet.set_visible_child_name(CONNECTION_LIST_PAGE);
+    search_page.connect_search(move |data| match sbb::api::search_connection(data) {
+        Ok(connections) => {
+            connection_list_page.set_connections(connections);
+            leaflet.set_visible_child_name(CONNECTION_LIST_PAGE);
+        }
+        Err(_) => {
+            connection_list_page.set_connections(vec![]);
+
+            let dialog = gtk::MessageDialogBuilder::new()
+                .modal(true)
+                .message_type(gtk::MessageType::Error)
+                .title("Error")
+                .text("Search failed! Please verify\nthat you are connected to\nthe internet and then retry.")
+                .buttons(gtk::ButtonsType::Ok)
+                .build();
+
+            dialog.connect_response(|d, _| unsafe {
+                d.destroy();
+            });
+
+            dialog.show_all();
+        }
     });
 
     let leaflet = content_leaflet.clone();
