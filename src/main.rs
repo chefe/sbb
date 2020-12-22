@@ -28,17 +28,19 @@ fn main() {
 }
 
 fn build_ui(app: &gtk::Application) {
-    let main_header = gtk::HeaderBar::new();
-    main_header.set_title(Some(APP_TITLE));
-    main_header.set_hexpand(true);
-    main_header.set_show_close_button(true);
+    let main_header = libhandy::HeaderBarBuilder::new()
+        .title(APP_TITLE)
+        .hexpand(true)
+        .show_close_button(true)
+        .build();
 
     let back_button =
         gtk::Button::from_icon_name(Some("go-previous-symbolic"), gtk::IconSize::Menu);
 
-    let connection_list_header = gtk::HeaderBar::new();
-    connection_list_header.set_show_close_button(true);
-    connection_list_header.set_hexpand(true);
+    let connection_list_header = libhandy::HeaderBarBuilder::new()
+        .show_close_button(true)
+        .hexpand(true)
+        .build();
     connection_list_header.add(&back_button);
 
     let header_group = libhandy::HeaderGroup::new();

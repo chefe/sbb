@@ -670,12 +670,14 @@ checksum = "99e85c08494b21a9054e7fe1374a732aeadaff3980b6990b94bfd3a70f690005"
 
 [[package]]
 name = "libhandy"
-version = "0.6.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d2aae364d9dc15598dbf1b3b5c1ac7857034bad622f8817002439125c9869a7"
+checksum = "d776bf5b92993b8006688652cda2683261317dcc82bb4d91d3996bda2f7019e0"
 dependencies = [
  "bitflags",
  "gdk",
+ "gdk-pixbuf",
+ "gdk-pixbuf-sys",
  "gdk-sys",
  "gio",
  "gio-sys",
@@ -692,11 +694,12 @@ dependencies = [
 
 [[package]]
 name = "libhandy-sys"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01bb81849945cacdf8f8f0db8e4be16d5bd72a8d673d9b9691cbe0b7c5364412"
+checksum = "0017044b92ade6704a301212feea9e754be62f58d39d01aae8fcf2c1a982e3d9"
 dependencies = [
  "gdk",
+ "gdk-pixbuf-sys",
  "gdk-sys",
  "gio",
  "gio-sys",
@@ -706,6 +709,7 @@ dependencies = [
  "libc",
  "pango-sys",
  "pkg-config",
+ "system-deps",
 ]
 
 [[package]]
