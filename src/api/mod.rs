@@ -38,6 +38,7 @@ pub struct SearchConnectionRequest {
     pub date: Option<String>,
     pub time: Option<String>,
     pub is_arrival_time: bool,
+    pub page: i8,
 }
 
 pub fn search_connection(
@@ -66,9 +67,10 @@ pub fn search_connection(
     };
 
     let url = format!(
-        "http://transport.opendata.ch/v1/connections?limit=6&from={from}&to={to}{vias}{date}{time}{arrival_time}",
+        "http://transport.opendata.ch/v1/connections?limit=6&from={from}&to={to}&page={page}{vias}{date}{time}{arrival_time}",
         from = request.from,
         to = request.to,
+        page = request.page,
         vias = vias,
         date = date,
         time = time,

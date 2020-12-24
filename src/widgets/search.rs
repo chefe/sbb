@@ -77,6 +77,7 @@ impl SearchWidget {
             let data = SearchConnectionRequest {
                 from: parent.from_entry.get_text(),
                 to: parent.to_entry.get_text(),
+                page: 0,
                 vias: parent.via_box.get_vias(),
                 date: parent.time_input.get_date(),
                 time: parent.time_input.get_time(),
