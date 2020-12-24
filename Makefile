@@ -26,6 +26,12 @@ target/debug/sbb: src Cargo.lock Cargo.toml
 target/release/sbb: src Cargo.lock Cargo.toml
 	cargo build --release
 
+run-flatpak-x11:
+	flatpak run --socket=x11 --env=GDK_BACKEND=x11 io.chefe.sbb
+
+run-flatpak-wayland:
+	flatpak run --socket=wayland --env=GDK_BACKEND=wayland io.chefe.sbb
+
 install: target/release/sbb data
 	mkdir -p $(BIN_DIR)
 	$(INSTALL_PROGRAM) target/release/sbb $(BIN_DIR)/io.chefe.sbb
