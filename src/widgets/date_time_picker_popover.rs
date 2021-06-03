@@ -21,7 +21,7 @@ pub struct DateTimePickerPopover {
 }
 
 impl DateTimePickerPopover {
-    pub fn new(entry: &gtk::Entry) -> Self {
+    pub fn new(time_button: &gtk::MenuButton) -> Self {
         let hour_input = Self::create_spin_button(0, 23);
         let minute_input = Self::create_spin_button(0, 59);
         let day_input = Self::create_spin_button(1, 31);
@@ -56,7 +56,7 @@ impl DateTimePickerPopover {
         popover_box.add(&tomorrow_evening_button);
         popover_box.add(&custom_time_box);
 
-        let popover = gtk::Popover::new(Some(entry));
+        let popover = gtk::Popover::new(Some(time_button));
         popover.set_position(gtk::PositionType::Bottom);
         popover.add(&popover_box);
 
@@ -82,6 +82,10 @@ impl DateTimePickerPopover {
 
     pub fn get_date_time(&self) -> Option<DateTime<Local>> {
         *self.time.lock().unwrap()
+    }
+
+    pub fn get_popover(&self) -> &gtk::Popover {
+        &self.popover
     }
 
     pub fn popup(&self) {

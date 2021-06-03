@@ -8,8 +8,8 @@ use crate::widgets::date_time_picker_popover::DateTimePickerPopover;
 #[derive(Clone)]
 pub struct TimeRowWidget {
     pub container: gtk::Box,
-    button: gtk::Button,
-    entry: gtk::Entry,
+    time_button: gtk::MenuButton,
+    arrival_button: gtk::Button,
     label: gtk::Label,
     time_picker: DateTimePickerPopover,
     is_arrival_time: Arc<Mutex<bool>>,
@@ -19,37 +19,36 @@ impl TimeRowWidget {
     pub fn new(label_size_group: &gtk::SizeGroup) -> Self {
         let container = gtk::Box::new(gtk::Orientation::Horizontal, 0);
 
-        let label = gtk::Label::new(Some("Time:"));
-        Self::set_default_margin(label.clone());
+        let label = gtk::LabelBuilder::new().label("Time:").margin(5).build();
         label_size_group.add_widget(&label);
 
-        let entry = gtk::Entry::new();
-        Self::set_default_margin(entry.clone());
-        entry.set_editable(false);
-        entry.set_hexpand(true);
+        let arrival_button = gtk::ButtonBuilder::new().margin(5).margin_start(0).build();
 
-        let button = gtk::Button::new();
-        Self::set_default_margin(button.clone());
-        button.set_margin_start(0);
+        let time_button = gtk::MenuButtonBuilder::new()
+            .hexpand(true)
+            .margin(5)
+            .build();
 
-        let time_picker = DateTimePickerPopover::new(&entry);
+        let time_picker = DateTimePickerPopover::new(&time_button);
+
+        time_button.set_popover(Some(time_picker.get_popover()));
 
         container.add(&label);
-        container.add(&entry);
-        container.add(&button);
+        container.add(&time_button);
+        container.add(&arrival_button);
 
         let widget = Self {
             container,
-            button,
-            entry,
+            time_button,
+            arrival_button,
             label,
             time_picker,
             is_arrival_time: Arc::new(Mutex::new(false)),
         };
 
         widget.setup_event_handlers();
-        widget.update_entry_text();
-        widget.update_button_icon();
+        widget.update_time_button_label();
+        widget.update_arrival_button_icon();
 
         widget
     }
@@ -80,29 +79,28 @@ impl TimeRowWidget {
 
     fn setup_event_handlers(&self) {
         let widget = self.clone();
-        self.entry.connect_focus_in_event(move |_, _| {
+        self.time_button.connect_clicked(move |_| {
             widget.time_picker.popup();
-            gtk::Inhibit(true)
         });
 
         let widget = self.clone();
-        self.button.connect_clicked(move |_| {
+        self.arrival_button.connect_clicked(move |_| {
             {
                 let mut is_arrival_time = widget.is_arrival_time.lock().unwrap();
                 *is_arrival_time = !(*is_arrival_time);
             }
 
-            widget.update_button_icon();
-            widget.update_entry_text();
+            widget.update_arrival_button_icon();
+            widget.update_time_button_label();
         });
 
         let widget = self.clone();
         self.time_picker.connect_changed(move || {
-            widget.update_entry_text();
+            widget.update_time_button_label();
         });
     }
 
-    fn update_entry_text(&self) {
+    fn update_time_button_label(&self) {
         let arrival_text = match self.is_arrival_time() {
             true => "Arrival",
             false => "Departure",
@@ -116,10 +114,10 @@ impl TimeRowWidget {
             None => format!("{} now", arrival_text),
         };
 
-        self.entry.set_text(&entry_text);
+        self.time_button.set_label(&entry_text);
     }
 
-    fn update_button_icon(&self) {
+    fn update_arrival_button_icon(&self) {
         let icon = if self.is_arrival_time() {
             "orientation-portrait-left"
         } else {
@@ -127,16 +125,6 @@ impl TimeRowWidget {
         };
 
         let icon = gtk::Image::from_icon_name(Some(icon), gtk::IconSize::Menu);
-        self.button.set_image(Some(&icon));
-    }
-
-    fn set_default_margin<W>(widget: W)
-    where
-        W: IsA<gtk::Widget>,
-    {
-        widget.set_margin_top(5);
-        widget.set_margin_bottom(5);
-        widget.set_margin_start(5);
-        widget.set_margin_end(5);
+        self.arrival_button.set_image(Some(&icon));
     }
 }
