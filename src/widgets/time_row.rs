@@ -108,13 +108,22 @@ impl TimeRowWidget {
 
         let entry_text = match self.time_picker.get_date_time() {
             Some(t) => {
-                let time = t.format("%Y-%m-%d %H:%M").to_string();
+                let time = TimeRowWidget::format_time(t);
                 format!("{} at {}", arrival_text, time)
             }
             None => format!("{} now", arrival_text),
         };
 
         self.time_button.set_label(&entry_text);
+    }
+
+    fn format_time(time: DateTime<Local>) -> String {
+        let diff = time.date() - Local::today();
+        return if diff.is_zero() {
+            time.format("%H:%M").to_string()
+        } else {
+            time.format("%Y-%m-%d %H:%M").to_string()
+        };
     }
 
     fn update_arrival_button_icon(&self) {
