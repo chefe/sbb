@@ -106,7 +106,17 @@ mod tests {
 
     #[test]
     fn it_returns_a_non_empty_list_for_a_valid_connection() {
-        let connections = search_connection("Zug", "Chur", vec![]).unwrap();
+        let request = SearchConnectionRequest {
+            from: "Zug".to_string(),
+            to: "Chur".to_string(),
+            vias: vec![],
+            date: None,
+            time: None,
+            is_arrival_time: true,
+            page: 0,
+        };
+
+        let connections = search_connection(request).unwrap();
         assert!(connections.len() > 0);
     }
 }
