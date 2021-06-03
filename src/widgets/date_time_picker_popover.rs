@@ -225,36 +225,26 @@ impl DateTimePickerPopover {
     }
 
     fn create_label(caption: &str) -> gtk::Label {
-        let label = gtk::Label::new(Some(caption));
-        Self::set_default_margin(label.clone());
-        label
+        gtk::LabelBuilder::new().label(caption).margin(5).build()
     }
 
     fn create_button(caption: &str) -> gtk::Button {
-        let button = gtk::Button::with_label(caption);
-        Self::set_default_margin(button.clone());
-        button
+        gtk::ButtonBuilder::new().label(caption).margin(5).build()
     }
 
     fn create_frame(caption: &str) -> (gtk::Frame, gtk::Box) {
-        let frame_box = gtk::Box::new(gtk::Orientation::Horizontal, 0);
-        Self::set_default_margin(frame_box.clone());
+        let frame_box = gtk::BoxBuilder::new()
+            .orientation(gtk::Orientation::Horizontal)
+            .margin(5)
+            .build();
 
-        let frame = gtk::Frame::new(Some(caption));
-        Self::set_default_margin(frame.clone());
-        frame.add(&frame_box);
+        let frame = gtk::FrameBuilder::new()
+            .label(caption)
+            .margin(5)
+            .child(&frame_box)
+            .build();
 
         (frame, frame_box)
-    }
-
-    fn set_default_margin<W>(widget: W)
-    where
-        W: IsA<gtk::Widget>,
-    {
-        widget.set_margin_top(5);
-        widget.set_margin_bottom(5);
-        widget.set_margin_start(5);
-        widget.set_margin_end(5);
     }
 
     fn get_days_in_month(year: i32, month: u32) -> u32 {
