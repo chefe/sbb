@@ -12,7 +12,7 @@ pub struct Walk {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Journey {
-    pub name: String,
+    pub name: Option<String>,
     pub category: String,
     pub number: String,
     pub operator: String,
