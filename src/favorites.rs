@@ -53,7 +53,7 @@ impl Favorites {
             Err(_) => "".to_owned(),
         };
 
-        favorites.split(", ").map(|i| i.to_owned()).collect()
+        favorites.split("; ").map(|i| i.to_owned()).collect()
     }
 
     fn store(&self, favorites: Vec<String>) {
@@ -62,7 +62,7 @@ impl Favorites {
             None => return,
         };
 
-        let favorites = favorites.join(", ");
+        let favorites = favorites.join("; ");
         self.key_file.set_string("General", "Favorites", &favorites);
 
         self.key_file
