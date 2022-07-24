@@ -55,10 +55,7 @@ impl SectionWidget {
 
     fn get_journey_text(section: &Section) -> String {
         if let Some(journey) = section.journey.as_ref() {
-            return match journey.name.as_ref() {
-                Some(name) => format!("<i>{}</i>", name),
-                None => "<i>Unknown</i>".to_string(),
-            };
+            return format!("<i>{} {}</i>", journey.category, journey.number);
         }
 
         if let Some(walk) = section.walk.as_ref() {
