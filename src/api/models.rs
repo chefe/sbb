@@ -13,6 +13,8 @@ pub struct Walk {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Journey {
     pub name: Option<String>,
+    pub category: String,
+    pub number: String,
     pub to: String,
 
     #[serde(rename = "passList")]
